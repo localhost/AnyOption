@@ -15,7 +15,12 @@
  *      a.out -c --zip -s 20 --name foo.jpg argtest1 argtest2 
  */
 
+#include <cstdlib>
+#include <iostream>
+
 #include "anyoption.h"
+
+using namespace std;
 
 void example( int argc, char* argv[] );
 
