@@ -1,5 +1,5 @@
-#ifndef _ANYOPTION_H
-#define _ANYOPTION_H
+#ifndef _ANYOPTION_H_
+#define _ANYOPTION_H_
 
 #define COMMON_OPT 	1
 #define COMMAND_OPT 	2
@@ -256,8 +256,6 @@ private: /* the hidden utils */
 	void printVerbose( char *msg );
 	void printVerbose( char ch );
 	void printVerbose( );
-
-
 };
 
-#endif /* ! _ANYOPTION_H */
+#endif /* ! _ANYOPTION_H_ */
