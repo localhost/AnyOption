@@ -32,10 +32,10 @@ public: /* the public interface */
 	~AnyOption();
 
 	/* 
-         * following set methods specifies the  
+	 * following set methods specifies the  
 	 * special characters and delimiters 
 	 * if not set traditional defaults will be used
-         */
+	 */
 
 	void setCommandPrefixChar( char _prefix );   /* '-' in "-w" */
 	void setCommandLongPrefix( char *_prefix );  /* '--' in "--width" */
@@ -44,47 +44,47 @@ public: /* the public interface */
 
 	/* 
 	 * provide the input for the options
-         * like argv[] for commndline and the 
-         * option file name  to use;
+	 * like argv[] for commndline and the 
+	 * option file name  to use;
 	 */
 
 	void useCommandArgs( int _argc, char **_argv );
 	void useFiileName( const char *_filename );
 
 	/* 
-         * turn off the POSIX style options 
-         * this means anything starting with a '-' or "--"
-         * will be considered a valid option 
-         * which alo means you cannot add a bunch of 
-         * POIX options chars together like "-lr"  for "-l -r"
-         * 
-         */
+	 * turn off the POSIX style options 
+	 * this means anything starting with a '-' or "--"
+	 * will be considered a valid option 
+	 * which alo means you cannot add a bunch of 
+	 * POIX options chars together like "-lr"  for "-l -r"
+	 * 
+	 */
 
 	void noPOSIX();
 
 	/*
-         * prints warning verbose if you set anything wrong 
-         */
+	 * prints warning verbose if you set anything wrong 
+	 */
 	void setVerbose();
 
 
 	/* 
-         * there are two types of options  
-         *
-         * Option - has an associated value ( -w 100 )
-         * Flag  - no value, just a boolean flag  ( -nogui )
-         * 
+	 * there are two types of options  
+	 *
+	 * Option - has an associated value ( -w 100 )
+	 * Flag  - no value, just a boolean flag  ( -nogui )
+	 * 
 	 * the options can be either a string ( GNU style )
-         * or a character ( traditional POSIX style ) 
-         * or both ( --width, -w )
-         *
-         * the options can be common to the commandline and 
-         * the optionfile, or can belong only to either of 
-         * commandline and optionfile
-         *
-         * following set methods, handle all the aboove 
+	 * or a character ( traditional POSIX style ) 
+	 * or both ( --width, -w )
+	 *
+	 * the options can be common to the commandline and 
+	 * the optionfile, or can belong only to either of 
+	 * commandline and optionfile
+	 *
+	 * following set methods, handle all the aboove 
 	 * cases of options.
-         */
+	 */
 
 	/* options comman to command line and option file */
 	void setOption( const char *opt_string );
@@ -111,25 +111,25 @@ public: /* the public interface */
 	void setFileFlag( const char *opt_string , char opt_char );
 
 	/*
-         * process the options, registerd using 
-         * useCommandArgs() and useFileName();
-         */
+	 * process the options, registerd using 
+	 * useCommandArgs() and useFileName();
+	 */
 	void processOptions();  
 	void processCommandArgs();
 	void processCommandArgs( int max_args );
 	bool processFile();
 
 	/*
-         * process the specified options 
-         */
+	 * process the specified options 
+	 */
 	void processCommandArgs( int _argc, char **_argv );
 	void processCommandArgs( int _argc, char **_argv, int max_args );
 	bool processFile( const char *_filename );
 	
 	/*
-         * get the value of the options 
+	 * get the value of the options 
 	 * will return NULL if no value is set 
-         */
+	 */
 	char *getValue( const char *_option );
 	bool  getFlag( const char *_option );
 	char *getValue( char _optchar );
@@ -142,12 +142,12 @@ public: /* the public interface */
 	void printAutoUsage();
 	void addUsage( const char *line );
 	void printHelp();
-        /* print auto usage printing for unknown options or flag */
+	/* print auto usage printing for unknown options or flag */
 	void autoUsagePrint(bool flag);
 	
 	/* 
-         * get the argument count and arguments sans the options
-         */
+	 * get the argument count and arguments sans the options
+	 */
 	int   getArgc();
 	char* getArgv( int index );
 	bool  hasOptions();
