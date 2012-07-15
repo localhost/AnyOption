@@ -70,7 +70,7 @@ example( int argc, char* argv[] )
 
 	/* 5. PROCESS THE COMMANDLINE AND RESOURCE FILE */
 
-	/* read options from a  option/resource file with ':' separated opttions or flags, one per line */
+	/* read options from an option/resource file with ':' separated options or flags, one per line */
 	opt->processFile( "/home/user/.options" );  
 	/* go through the command line and get the options  */
 	opt->processCommandArgs( argc, argv );
