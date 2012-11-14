@@ -59,7 +59,18 @@
  * leading to exception when mixing different options types
  */
 
+/* 
+ * Updated July 2012  
+ * Discontinue the use of iostreams
+ */
+
 #include "anyoption.h"
+
+#include <cstdlib>
+#include <cstdio>
+#include <string>
+
+using namespace std;
 
 AnyOption::AnyOption()
 {
@@ -131,9 +142,7 @@ AnyOption::init(int maxopt, int maxcharopt )
 	strcpy( long_opt_prefix , "--" );
 
 	if( alloc() == false ){
-		cout << endl << "OPTIONS ERROR : Failed allocating memory" ;
-		cout << endl ;
-		cout << "Exiting." << endl ;
+		printf("\nOPTIONS ERROR : Failed allocating memory\nExiting.\n");
 		exit (0);
 	}
 }
@@ -164,9 +173,9 @@ AnyOption::alloc()
 	optchartype = (int*) malloc( (max_char_options+1)*sizeof(int) );	
 	optcharindex = (int*) malloc( (max_char_options+1)*sizeof(int) );	
 	if( optionchars == NULL || 
-            optchartype == NULL || 
-            optcharindex == NULL )
-        {
+	    optchartype == NULL || 
+	    optcharindex == NULL )
+	{
 		mem_allocated = false;
 		return false;
 	}
@@ -328,27 +337,27 @@ void
 AnyOption::printVerbose()
 {
 	if( verbose )
-		cout << endl  ;
+		printf("\n");
 }
 void
 AnyOption::printVerbose( const char *msg )
 {
 	if( verbose )
-		cout << msg  ;
+		printf("%s",msg);
 }
 
 void
 AnyOption::printVerbose( char *msg )
 {
 	if( verbose )
-		cout << msg  ;
+		printf("%s",msg);
 }
 
 void
 AnyOption::printVerbose( char ch )
 {
 	if( verbose )
-		cout << ch ;
+		printf("%c",ch);
 }
 
 bool
@@ -558,22 +567,18 @@ AnyOption::addOption( char opt, int type )
 void
 AnyOption::addOptionError( const char *opt )
 {
-	cout << endl ;
-	cout << "OPTIONS ERROR : Failed allocating extra memory " << endl ;
-	cout << "While adding the option : \""<< opt << "\"" << endl;
-	cout << "Exiting." << endl ;
-	cout << endl ;
+	printf("OPTIONS ERROR : Failed allocating extra memory\n");
+	printf("While adding the option : \"%s\"\n",opt);
+	printf("Exiting.\n");
 	exit(0);
 }
 
 void
 AnyOption::addOptionError( char opt )
 {
-	cout << endl ;
-	cout << "OPTIONS ERROR : Failed allocating extra memory " << endl ;
-	cout << "While adding the option: \""<< opt << "\"" << endl;
-	cout << "Exiting." << endl ;
-	cout << endl ;
+	printf("OPTIONS ERROR : Failed allocating extra memory\n");
+	printf("While adding the option : \"%c\"\n",opt);
+	printf("Exiting.\n");
 	exit(0);
 }
 
@@ -608,7 +613,7 @@ AnyOption::processCommandArgs( int _argc, char **_argv )
 void
 AnyOption::processCommandArgs()
 {
-   	if( ! ( valueStoreOK() && CommandSet() )  )
+	if( ! ( valueStoreOK() && CommandSet() )  )
 	   return;
 	   
 	if( max_legal_args == 0 )
@@ -616,7 +621,7 @@ AnyOption::processCommandArgs()
 	new_argv = (int*) malloc( (max_legal_args+1) * sizeof(int) );
 	for( int i = 1 ; i < argc ; i++ ){/* ignore first argv */
 		if(  argv[i][0] == long_opt_prefix[0] && 
-                     argv[i][1] == long_opt_prefix[1] ) { /* long GNU option */
+		     argv[i][1] == long_opt_prefix[1] ) { /* long GNU option */
 			int match_at = parseGNU( argv[i]+2 ); /* skip -- */
 			if( match_at >= 0 && i < argc-1 ) /* found match */
 				setValue( options[match_at] , argv[++i] );
@@ -632,14 +637,14 @@ AnyOption::processCommandArgs()
 			}
 		}else { /* not option but an argument keep index */
 			if( new_argc < max_legal_args ){
-                                new_argv[ new_argc ] = i ;
-                                new_argc++;
-                        }else{ /* ignore extra arguments */
-                                printVerbose( "Ignoring extra argument: " );
+				new_argv[ new_argc ] = i ;
+				new_argc++;
+			}else{ /* ignore extra arguments */
+				printVerbose( "Ignoring extra argument: " );
 				printVerbose( argv[i] );
 				printVerbose( );
 				printAutoUsage();
-                        }
+			}
 			printVerbose( "Unknown command argument option : " );
 			printVerbose( argv[i] );
 			printVerbose( );
@@ -661,7 +666,7 @@ AnyOption::parsePOSIX( char* arg )
 			}else{/* else the rest of arg is the value */
 				i++; /* skip any '=' and ' ' */
 				while( arg[i] == whitespace 
-			    		|| arg[i] == equalsign )
+					|| arg[i] == equalsign )
 					i++;	
 				setValue( ch , arg+i );
 				return '0';
@@ -678,9 +683,9 @@ AnyOption::parsePOSIX( char* arg )
 int
 AnyOption::parseGNU( char *arg )
 {
-	int split_at = 0;
+	size_t split_at = 0;
 	/* if has a '=' sign get value */
-	for( unsigned int i = 0 ; i < strlen(arg) ; i++ ){
+	for( size_t i = 0 ; i < strlen(arg) ; i++ ){
 		if(arg[i] ==  equalsign ){
 			split_at = i ; /* store index */
 			i = strlen(arg); /* get out of loop */
@@ -688,7 +693,7 @@ AnyOption::parseGNU( char *arg )
 	}
 	if( split_at > 0 ){ /* it is an option value pair */
 		char* tmp = (char*) malloc(  (split_at+1)*sizeof(char) );
-		for( int i = 0 ; i < split_at ; i++ )
+		for( size_t i = 0 ; i < split_at ; i++ )
 			tmp[i] = arg[i];
 		tmp[split_at] = '\0';
 
@@ -844,14 +849,15 @@ AnyOption::setValue( const char *option , char *value )
 {
 	if( !valueStoreOK() )
 		return false;
-        for( int i = 0 ; i < option_counter ; i++ ){
-                if( strcmp( options[i], option ) == 0 ){
-                        values[ optionindex[i] ] = (char*) malloc((strlen(value)+1)*sizeof(char));
-                        strcpy( values[ optionindex[i] ], value );
+	for( int i = 0 ; i < option_counter ; i++ ){
+		if( strcmp( options[i], option ) == 0 ){
+			size_t length = (strlen(value)+1)*sizeof(char);
+			values[ optionindex[i] ] = (char*) malloc(length);
+			strncpy( values[ optionindex[i] ], value, length );
 			return true;
 		}
-        }
-        return false;
+	}
+	return false;
 }
 
 bool
@@ -859,14 +865,15 @@ AnyOption::setFlagOn( const char *option )
 {
 	if( !valueStoreOK() )
 		return false;
-        for( int i = 0 ; i < option_counter ; i++ ){
-                if( strcmp( options[i], option ) == 0 ){
-                        values[ optionindex[i] ] = (char*) malloc((strlen(TRUE_FLAG)+1)*sizeof(char));
-                        strcpy( values[ optionindex[i] ]  ,  TRUE_FLAG );
+	for( int i = 0 ; i < option_counter ; i++ ){
+		if( strcmp( options[i], option ) == 0 ){
+			size_t length = (strlen(TRUE_FLAG)+1)*sizeof(char);
+			values[ optionindex[i] ] = (char*) malloc(length);
+			strncpy( values[ optionindex[i] ], TRUE_FLAG, length );
 			return true;
 		}
-        }
-        return false;
+	}
+	return false;
 }
 
 bool
@@ -874,14 +881,15 @@ AnyOption::setValue( char option , char *value )
 {
 	if( !valueStoreOK() )
 		return false;
-        for( int i = 0 ; i < optchar_counter ; i++ ){
-                if( optionchars[i] == option ){
-                        values[ optcharindex[i] ] = (char*) malloc((strlen(value)+1)*sizeof(char));
-                        strcpy( values[ optcharindex[i] ],  value );
+	for( int i = 0 ; i < optchar_counter ; i++ ){
+		if( optionchars[i] == option ){
+			size_t length = (strlen(value)+1)*sizeof(char);
+			values[ optcharindex[i] ] = (char*) malloc(length);
+			strncpy( values[ optcharindex[i] ], value, length );
 			return true;
 		}
-        }
-        return false;
+	}
+	return false;
 }
 
 bool
@@ -889,14 +897,15 @@ AnyOption::setFlagOn( char option )
 {
 	if( !valueStoreOK() )
 		return false;
-        for( int i = 0 ; i < optchar_counter ; i++ ){
-                if( optionchars[i] == option ){
-                        values[ optcharindex[i] ] = (char*) malloc((strlen(TRUE_FLAG)+1)*sizeof(char));
-			strcpy( values[ optcharindex[i] ] , TRUE_FLAG );
+	for( int i = 0 ; i < optchar_counter ; i++ ){
+		if( optionchars[i] == option ){
+			size_t length = (strlen(TRUE_FLAG)+1)*sizeof(char);
+			values[ optcharindex[i] ] = (char*) malloc(length);
+			strncpy( values[ optcharindex[i] ] , TRUE_FLAG, length );
 			return true;
 		}
-        }
-        return false;
+	}
+	return false;
 }
 
 
@@ -945,21 +954,23 @@ AnyOption::readFile()
 char*
 AnyOption::readFile( const char* fname )
 {
-        int length;
-        char *buffer;
-        ifstream is;
-        is.open ( fname , ifstream::in );
-        if( ! is.good() ){
-                is.close();
-                return NULL;
-        }
-        is.seekg (0, ios::end);
-        length = is.tellg();
-        is.seekg (0, ios::beg);
-        buffer = (char*) malloc(length*sizeof(char));
-        is.read (buffer,length);
-        is.close();
-        return buffer;
+	char *buffer = NULL;
+	FILE *f = fopen(fname,"r");
+	long length = 0;
+	if (f)
+	{
+    fseek(f,0,SEEK_END);
+    length = ftell(f);
+  }
+  buffer = (char*) malloc((length+1)*sizeof(char));
+  if (f)
+  {
+    fseek(f,0,SEEK_SET);
+    fread(buffer,sizeof(char),length,f);
+    fclose(f);	
+  }
+  buffer[length] = '\0';
+  return buffer;
 }
 
 /*
@@ -970,30 +981,30 @@ bool
 AnyOption::consumeFile( char *buffer )
 {
 
-        if( buffer == NULL ) 
+	if( buffer == NULL ) 
 		return false;
 
-       	char *cursor = buffer;/* preserve the ptr */
-       	char *pline = NULL ;
-       	int linelength = 0;
-       	bool newline = true;
-       	for( unsigned int i = 0 ; i < strlen( buffer ) ; i++ ){
-       	if( *cursor == endofline ) { /* end of line */
-          	if( pline != NULL ) /* valid line */
-               		processLine( pline, linelength );
-                 	pline = NULL;
-                 	newline = true;
-           	}else if( newline ){ /* start of line */
-                 	newline = false;
-              		if( (*cursor != comment ) ){ /* not a comment */
-		    		pline = cursor ;
-                    		linelength = 0 ;
-                	}
-             	}
-            	cursor++; /* keep moving */
-            	linelength++;
-       	}
-     	free (buffer);
+	char *cursor = buffer;/* preserve the ptr */
+	char *pline = NULL ;
+	int linelength = 0;
+	bool newline = true;
+	for( unsigned int i = 0 ; i < strlen( buffer ) ; i++ ){
+	if( *cursor == endofline ) { /* end of line */
+		if( pline != NULL ) /* valid line */
+			processLine( pline, linelength );
+			pline = NULL;
+			newline = true;
+		}else if( newline ){ /* start of line */
+			newline = false;
+			if( (*cursor != comment ) ){ /* not a comment */
+				pline = cursor ;
+				linelength = 0 ;
+			}
+		}
+		cursor++; /* keep moving */
+		linelength++;
+	}
+	free (buffer);
 	return true;
 }
 
@@ -1021,28 +1032,28 @@ AnyOption::consumeFile( char *buffer )
 void
 AnyOption::processLine( char *theline, int length  )
 {
-        bool found = false;
-        char *pline = (char*) malloc( (length+1)*sizeof(char) );
-        for( int i = 0 ; i < length ; i ++ )
-                pline[i]= *(theline++);
-        pline[length] = nullterminate;
-        char *cursor = pline ; /* preserve the ptr */
-        if( *cursor == delimiter || *(cursor+length-1) == delimiter ){
-                justValue( pline );/* line with start/end delimiter */
-        }else{
-                for( int i = 1 ; i < length-1 && !found ; i++){/* delimiter */
-                        if( *cursor == delimiter ){
-                                *(cursor-1) = nullterminate; /* two strings */
-                                found = true;
-                                valuePairs( pline , cursor+1 );
-                        }
-                        cursor++;
-                }
-                cursor++;
-                if( !found ) /* not a pair */
-                        justValue( pline );
-        }
-        free (pline);
+	bool found = false;
+	char *pline = (char*) malloc( (length+1)*sizeof(char) );
+	for( int i = 0 ; i < length ; i ++ )
+		pline[i]= *(theline++);
+	pline[length] = nullterminate;
+	char *cursor = pline ; /* preserve the ptr */
+	if( *cursor == delimiter || *(cursor+length-1) == delimiter ){
+		justValue( pline );/* line with start/end delimiter */
+	}else{
+		for( int i = 1 ; i < length-1 && !found ; i++){/* delimiter */
+			if( *cursor == delimiter ){
+				*(cursor-1) = nullterminate; /* two strings */
+				found = true;
+				valuePairs( pline , cursor+1 );
+			}
+			cursor++;
+		}
+		cursor++;
+		if( !found ) /* not a pair */
+			justValue( pline );
+	}
+	free (pline);
 }
 
 /*
@@ -1051,13 +1062,13 @@ AnyOption::processLine( char *theline, int length  )
 char*
 AnyOption::chomp( char *str )
 {
-        while( *str == whitespace )
-                str++;
-        char *end = str+strlen(str)-1;
-        while( *end == whitespace )
-                end--;
-        *(end+1) = nullterminate;
-        return str;
+	while( *str == whitespace )
+		str++;
+	char *end = str+strlen(str)-1;
+	while( *end == whitespace )
+		end--;
+	*(end+1) = nullterminate;
+	return str;
 }
 
 void
@@ -1069,8 +1080,8 @@ AnyOption::valuePairs( char *type, char *value )
 				if( optchartype[i] == COMMON_OPT ||
 				    optchartype[i] == FILE_OPT )
 				{
-			 		setValue( type[0] , chomp(value) );
-			 		return;
+					setValue( type[0] , chomp(value) );
+					return;
 				}
 			}
 		}
@@ -1081,12 +1092,12 @@ AnyOption::valuePairs( char *type, char *value )
 			if( optiontype[i] == COMMON_OPT ||
 			    optiontype[i] == FILE_OPT )
 			{
-		 		setValue( type , chomp(value) );
-		 		return;
+				setValue( type , chomp(value) );
+				return;
 			}
 		}
 	}
-        printVerbose( "Unknown option in resourcefile : " );
+	printVerbose( "Unknown option in resourcefile : " );
 	printVerbose( type );
 	printVerbose( );
 }
@@ -1101,8 +1112,8 @@ AnyOption::justValue( char *type )
 				if( optchartype[i] == COMMON_FLAG ||
 				    optchartype[i] == FILE_FLAG )
 				{
-			 		setFlagOn( type[0] );
-			 		return;
+					setFlagOn( type[0] );
+					return;
 				}
 			}
 		}
@@ -1113,12 +1124,12 @@ AnyOption::justValue( char *type )
 			if( optiontype[i] == COMMON_FLAG ||
 			    optiontype[i] == FILE_FLAG )
 			{
-		 		setFlagOn( type );
-		 		return;
+				setFlagOn( type );
+				return;
 			}
 		}
 	}
-        printVerbose( "Unknown option in resourcefile : " );
+	printVerbose( "Unknown option in resourcefile : " );
 	printVerbose( type  );
 	printVerbose( );
 }
@@ -1140,10 +1151,10 @@ AnyOption::printUsage()
 	
 	if( once ) {
 		once = false ;
-		cout << endl ;
+		printf("\n");
 		for( int i = 0 ; i < usage_lines ; i++ )
-			cout << usage[i] << endl ;	
-		cout << endl ;
+			printf("%s\n",usage[i]);	
+		printf("\n");
 	}
 }
 	
@@ -1164,11 +1175,8 @@ AnyOption::addUsage( const char *line )
 void
 AnyOption::addUsageError( const char *line )
 {
-	cout << endl ;
-	cout << "OPTIONS ERROR : Failed allocating extra memory " << endl ;
-	cout << "While adding the usage/help  : \""<< line << "\"" << endl;
-	cout << "Exiting." << endl ;
-	cout << endl ;
+	printf("\nOPTIONS ERROR : Failed allocating extra memory\n");
+	printf("While adding the usage/help : \"%s\"\n",line);
+	printf("Exiting.\n");
 	exit(0);
-
 }
